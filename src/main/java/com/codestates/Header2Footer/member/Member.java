@@ -1,14 +1,23 @@
 package com.codestates.Header2Footer.member;
 
+import com.codestates.Header2Footer.audit.Auditable;
+import com.codestates.Header2Footer.order.Order;
+import com.codestates.Header2Footer.question_board.QuestionBoard;
+import com.codestates.Header2Footer.stamp.Stamp;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
+@Setter
 @Entity
-public class Member {
+public class Member extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
@@ -24,7 +33,41 @@ public class Member {
 
     @Enumerated(value = EnumType.STRING)
     @Column(length = 20, nullable = false)
-    private MemberStatus memberStatus;
+    private MemberStatus memberStatus = MemberStatus.MEMBER_ACTIVE;
+
+    @OneToMany(mappedBy = "member")
+    private List<Order> orders = new ArrayList<>();
+
+    // 수정된 부분
+    @OneToOne(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private Stamp stamp;
+
+    @OneToMany(mappedBy = "member")
+    private List<QuestionBoard> questionBoards = new ArrayList<>();
+
+    public Member(String email) {
+        this.email = email;
+    }
+
+    public Member(String email, String name, String phone) {
+        this.email = email;
+        this.name = name;
+        this.phone = phone;
+    }
+
+    public void setOrder(Order order) {
+        orders.add(order);
+        if (order.getMember() != this) {
+            order.setMember(this);
+        }
+    }
+
+    public void setStamp(Stamp stamp) {
+        this.stamp = stamp;
+        if (stamp.getMember() != this) {
+            stamp.setMember(this);
+        }
+    }
 
 
     public enum MemberStatus{

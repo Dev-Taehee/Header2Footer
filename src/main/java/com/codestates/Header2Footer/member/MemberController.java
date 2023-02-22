@@ -1,11 +1,13 @@
 package com.codestates.Header2Footer.member;
 
+import com.codestates.Header2Footer.dto.MultiResponseDto;
+import com.codestates.Header2Footer.dto.SingleResponseDto;
+import com.codestates.Header2Footer.stamp.Stamp;
+import com.codestates.Header2Footer.utils.UriCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +33,7 @@ public class MemberController {
     @PostMapping
     public ResponseEntity postMember(@Valid @RequestBody MemberDto.Post requestBody){
         Member member = mapper.memberPostToMember(requestBody);
+        member.setStamp(new Stamp());
 
         Member createdMember = memberService.createMember(member);
         URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
